@@ -183,16 +183,18 @@ public class LettersBoxArg {
         return enterLettersStyle;
     }
 
-    public void setEnterLettersStyle(LettersBoxStyle enterLettersStyle) {
+    public LettersBoxArg setEnterLettersStyle(LettersBoxStyle enterLettersStyle) {
         this.enterLettersStyle = enterLettersStyle;
+        return this;
     }
 
     public LettersBoxStyle getRandomLettersStyle() {
         return randomLettersStyle;
     }
 
-    public void setRandomLettersStyle(LettersBoxStyle randomLettersStyle) {
+    public LettersBoxArg setRandomLettersStyle(LettersBoxStyle randomLettersStyle) {
         this.randomLettersStyle = randomLettersStyle;
+        return this;
     }
 
     public int getTiltDrawableId() {
