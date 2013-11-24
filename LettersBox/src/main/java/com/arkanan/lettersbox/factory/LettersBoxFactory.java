@@ -31,16 +31,37 @@ import com.arkanan.lettersbox.R;
  */
 public abstract class LettersBoxFactory {
 
+    /**
+     * arg used to create letters box
+     */
 	private LettersBoxArg  lettersBoxArg;
 
-	private List<ButtonRandomLetter> buttonRandomLetters = new ArrayList<ButtonRandomLetter>();
+    /**
+     * represents list of random letters
+     * randomletters is a list of shuffle letters which contains letters of the answer
+     * and some random letters
+     */
+	private List<ButtonRandomLetter> buttonRandomLetters;
 
-	private List<ButtonEnterLetter> buttonEnterLetters = new ArrayList<ButtonEnterLetter>();
+    /**
+     * represents list of enter letters
+     * enterletters is a list of letter typed of randomletters by a user
+     */
+	private List<ButtonEnterLetter> buttonEnterLetters;
 
+    /**
+     * used to know if enterletters list is full
+     */
 	private boolean fullEnterLetters;
 
+    /**
+     * represents list of custom character
+     */
 	private List<CustomCharacter> currentShuffleLetters;
 
+    /**
+     * The current word that user has to guess
+     */
 	private String currentWord;
 
 	/**
@@ -50,6 +71,8 @@ public abstract class LettersBoxFactory {
 	 */
 	public LettersBoxFactory(LettersBoxArg lettersBoxArg) {
 		this.lettersBoxArg = lettersBoxArg;
+        buttonEnterLetters = new ArrayList<ButtonEnterLetter>(lettersBoxArg.getMaxLetters());
+        buttonRandomLetters = new ArrayList<ButtonRandomLetter>(lettersBoxArg.getMaxLetters());
 		nextWord();
 		currentShuffleLetters = shuffleLetters(currentWord);
 	}
@@ -69,7 +92,7 @@ public abstract class LettersBoxFactory {
 	public void construct() {
 		createRandomLetters();
 		createEnterLetters();
-		
+
 		if(lettersBoxArg.getHintButton() != null){
 			
 			lettersBoxArg.getHintButton().setOnClickListener(new OnClickListener() {
@@ -91,7 +114,7 @@ public abstract class LettersBoxFactory {
 					}
 	
 					button.setVisibility(LinearLayout.INVISIBLE);
-	
+                    onClickHintButton();
 				}
 			});
 		}
@@ -103,31 +126,40 @@ public abstract class LettersBoxFactory {
 				@Override
 				public void onClick(View button) {
 	
-					fullEnterLetters = false;
+                fullEnterLetters = false;
 
-					for (ButtonEnterLetter loopButton : buttonEnterLetters) {
-						loopButton.setText("");
-						loopButton.setOnTouchListener(null);
-					}
+                for (ButtonEnterLetter loopButton : buttonEnterLetters) {
+                    loopButton.setText("");
+                    loopButton.setOnTouchListener(null);
+                }
 
-					int cpt = 0;
-					for (char loopLetter : currentWord
-							.toUpperCase(Locale.FRANCE).toCharArray()) {
-						if (loopLetter == ' ')
-							continue;
-						buttonEnterLetters.get(cpt).setText("" + loopLetter);
-						cpt++;
-					}
+                int cpt = 0;
+                for (char loopLetter : currentWord
+                        .toUpperCase(Locale.FRANCE).toCharArray()) {
+                    if (loopLetter == ' ')
+                        continue;
+                    buttonEnterLetters.get(cpt).setText("" + loopLetter);
+                    cpt++;
+                }
 
-					for (ButtonRandomLetter loopButton : buttonRandomLetters) {
-						loopButton.setVisibility(LinearLayout.INVISIBLE);
-					}
-	
+                for (ButtonRandomLetter loopButton : buttonRandomLetters) {
+                    loopButton.setVisibility(LinearLayout.INVISIBLE);
+                }
+	            onClickAnswerButton();
 				}
 			});
 		}
 		
 	}
+
+    private void onTestAnswer(boolean result){
+        if(result){
+            //We have to block type on enter letters
+            for(Button loopEnterLetter : buttonEnterLetters)
+                loopEnterLetter.setEnabled(false);
+        }
+        onFullEnterLetters(result);
+    }
 
 	/**
 	 * 
@@ -140,9 +172,19 @@ public abstract class LettersBoxFactory {
 	public abstract void onFullEnterLetters(boolean result);
 
 	/**
-	 * This function is call when the list words is empty
+	 * This function is called when the list words is empty
 	 */
 	public abstract void onEmptyListWords();
+
+    /**
+     * This function is called when user click on hint button
+     */
+    public abstract void onClickHintButton();
+
+    /**
+     * This function is called when user click on answer button
+     */
+    public abstract void onClickAnswerButton();
 
 	/**
 	 * reload letters with the next word of the list
@@ -153,6 +195,7 @@ public abstract class LettersBoxFactory {
 
 		lettersBoxArg.getEnterLetters().removeAllViews();
 		buttonEnterLetters.clear();
+
 		fullEnterLetters = false;
 		createEnterLetters();
 		currentShuffleLetters = shuffleLetters(currentWord);
@@ -191,8 +234,6 @@ public abstract class LettersBoxFactory {
 					LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 			for (CustomCharacter loopChar : currentShuffleLetters.subList(
 					minIndex, maxIndex)) {
-//				ButtonRandomLetter loopButton = ButtonRandomLetter_
-//						.build(lettersBoxArg.getCurrentActivity());
 
                 ButtonRandomLetter loopButton = (ButtonRandomLetter) lettersBoxArg
 						.getCurrentActivity().getLayoutInflater()
@@ -231,8 +272,7 @@ public abstract class LettersBoxFactory {
 		int cptLineLetters = 0;
 		LinearLayout loopLinearLayout = new LinearLayout(lettersBoxArg.getCurrentActivity());
 		lettersBoxArg.getEnterLetters().addView(loopLinearLayout);
-		
-		
+
 		for (String loopAnswer : currentWord.split(" ")) {
 			
 			if (cptLineLetters + loopAnswer.length() + 1 >= lettersBoxArg.getMaxLettersByLign()) {
@@ -324,20 +364,25 @@ public abstract class LettersBoxFactory {
 
     /**
      * method call on click on enter letter
+     * This method is synchronized to prevent multi-click on letters.
      */
 	private synchronized void enterLetter(int index, String charLetter,
 			Button button) {
+        //Loop of all enter letters
 		for (ButtonEnterLetter loopButton : buttonEnterLetters) {
+            //We are looking for the first empty enter letter
 			if (loopButton.getText() == null || loopButton.getText().equals("")) {
 				loopButton.setText(charLetter);
 				loopButton.setIndexOfRandomLetter(index);
 				loopButton.setOnClickListener(onClickEnterLetter);
 				loopButton.setEnabled(true);
 				button.setVisibility(LinearLayout.INVISIBLE);
+                //We check if with this letter, enter letters if full
 				if (currentWord.replaceAll(" ", "").length() == countEnterLetter()) {
 					fullEnterLetters = true;
-					onFullEnterLetters(testResult());
+					onTestAnswer(testResult());
 				}
+                //Exit method when we have set the button
 				return;
 			}
 		}
@@ -400,10 +445,17 @@ public abstract class LettersBoxFactory {
 	 */
 	private boolean nextWord() {
 		currentWord = lettersBoxArg.getWords().poll();
-		if (currentWord == null) {
+
+        //Check if it is the list is empty, poll return null when there is no more items in list
+        if (currentWord == null) {
 			onEmptyListWords();
 			return false;
 		}
+
+        //Check if current word length is longer than the max number letter show, if yes, we
+        //cannot use this word and we take the next
+        if(currentWord.length() > lettersBoxArg.getMaxLetters())
+            return nextWord();
 
 		return true;
 	}

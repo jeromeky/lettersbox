@@ -73,17 +73,17 @@ public class LettersBoxArg {
 	private LinearLayout enterLetters;
 	
 	/**
-	 * A button 
+	 * A button used to show correct letters within random letters
 	 */
 	private Button hintButton;
 	
 	/**
-	 * A button
+	 * A button used to show the answer
 	 */
 	private Button answerButton;
 	
 	/**
-	 * List of words 
+	 * List of words to guess
 	 */
 	private LinkedList<String> words = new LinkedList<String>();
 

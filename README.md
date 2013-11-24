@@ -1,5 +1,10 @@
 LettersBox Framework
 
+LettersBox is an android library for display box with letters. It can be used when you want someone guess something in your application. If you want integrate this library in your android application, all you have to do is include this library, configure number of lines / letters show, and add a list of words to guess.
+It will automatically create lines of enter / random letters.
+
+Random Letters correspond 
+
 TODO : 
 - Put aar to the central repository
 - Add 
@@ -22,3 +27,5 @@ dependencies {
 - Construct LettersBox with LettersBoxFactory.
 
 A sample is available here : http://github.com/jeromeky/lettersboxsample/
+This library is also used in games i made :
+

@@ -2,7 +2,8 @@ package com.arkanan.lettersbox.model;
 
 /**
  *
- * Model use to create letters
+ * Custom character is used to create enter letter.
+ *
  * @author jeromeky
  *
  */
