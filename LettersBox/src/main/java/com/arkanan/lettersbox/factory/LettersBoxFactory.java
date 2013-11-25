@@ -39,7 +39,7 @@ public abstract class LettersBoxFactory {
     /**
      * represents list of random letters
      * randomletters is a list of shuffle letters which contains letters of the answer
-     * and some random letters
+     * and random letters
      */
 	private List<ButtonRandomLetter> buttonRandomLetters;
 
